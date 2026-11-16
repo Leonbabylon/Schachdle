@@ -1,0 +1,40 @@
+name: Build puzzles
+
+# Runs when the queue changes. Analyses new positions with Stockfish, then commits the puzzle
+# files (and any dates it assigned) back to the repository. On a pull request it only checks.
+on:
+  push:
+    branches: [main]
+    paths: [queue.json, tools/**]
+  pull_request:
+    paths: [queue.json, tools/**]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r tools/requirements.txt
+      - run: bash tools/get_stockfish.sh
+      - name: Check positions (pull request)
+        if: github.event_name == 'pull_request'
+        run: python tools/build.py --check
+      - name: Build puzzles
+        if: github.event_name != 'pull_request'
+        run: python tools/build.py
+      - name: Commit new puzzle files
+        # runs even when some positions were rejected, so the good ones are not lost
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          git config user.name "schachdle-bot"
+          git config user.email "schachdle-bot@users.noreply.github.com"
+          git add puzzles queue.json
+          git diff --cached --quiet || (git commit -m "Build puzzles from queue" && git push)

@@ -1,0 +1,9 @@
+{
+  "launch_date": "2026-10-17",
+  "depth": 24,
+  "engine_name": "Stockfish 17.1",
+  "line_length": 6,
+  "max_step_swing": 0.6,
+  "max_abs_eval": 8.0,
+  "domain": ""
+}
