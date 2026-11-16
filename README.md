@@ -88,6 +88,10 @@ python -m http.server -d public 8000       # then open http://localhost:8000/?da
 
 `?date=YYYY-MM-DD` shows that date's puzzle. Online it only works for dates already published.
 
+`?debug` shows a debug menu above the board: step to the previous or next day, jump back to today,
+or reset the shown puzzle (clears its saved guesses in this browser). It works on the live site too,
+for example `https://leonbabylon.github.io/Schachdle/?debug`.
+
 ## Hosting
 
 The workflows publish to GitHub Pages. One-time setup:

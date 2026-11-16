@@ -169,6 +169,7 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
     <div class="bar"><span>[#schachdle]</span><span>Puzzle <b id="pnum">#1</b></span><span class="r" id="pdate"></span></div>
     <h1>Schach<span>dle</span></h1>
     <p class="motd">*** Connected to the Schachdle evaluation server. Guests welcome. Engine on duty: <span id="engname">Stockfish 19</span>.</p>
+    <div class="debug" id="debug" hidden><span class="tag">debug</span><span id="dbgdate"></span><button type="button" class="btn sm" id="dbgprev">◀ Prev day</button><button type="button" class="btn sm" id="dbgtoday">Today</button><button type="button" class="btn sm" id="dbgnext">Next day ▶</button><button type="button" class="btn sm" id="dbgreset">Reset puzzle</button></div>
   </header>
 
   <p class="prompt"><span class="sys">-!- Topic for #schachdle:</span> What does <strong>Stockfish</strong> think of this position? Guess the evaluation in pawns from White's side. You have <strong>5 tries</strong>. After each miss Stockfish plays its top move, and your next guess is for the new position. Get the eval right and a bonus round opens: find its top move on the board for a <span class="star">★</span>.</p>
@@ -417,6 +418,13 @@ function tick(){const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.get
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 // Admin preview: index.html?date=YYYY-MM-DD shows that date's puzzle (only dates whose file has been published exist online).
 const PREVIEW=(()=>{const q=new URLSearchParams(location.search).get("date");return /^\d{4}-\d\d-\d\d$/.test(q||"")?q:null})();
+// Debug menu: add ?debug to the URL. Steps to the previous or next day (keeping ?debug) and resets the shown puzzle.
+const DEBUG=new URLSearchParams(location.search).has("debug");
+function debugMenu(key){if(!DEBUG)return;$("debug").hidden=false;$("dbgdate").textContent=key+(key===REAL_DAY?" (today)":"");
+  const go=k=>{const u=new URLSearchParams(location.search);if(k===REAL_DAY)u.delete("date");else u.set("date",k);location.search=u.toString()};
+  const shift=n=>{const x=new Date(viewDate);x.setDate(x.getDate()+n);go(todayKey(x))};
+  $("dbgprev").onclick=()=>shift(-1);$("dbgnext").onclick=()=>shift(1);$("dbgtoday").onclick=()=>go(REAL_DAY);
+  $("dbgreset").onclick=()=>{try{localStorage.removeItem("schachdle-"+key)}catch(e){}location.reload()}}
 function setup(){
   $("play").hidden=false;$("result").hidden=true;$("err").textContent="";
   const last=state.guesses[state.guesses.length-1];cur=last===undefined?0:Math.max(-LIM,Math.min(LIM,last));$("guess").value=last===undefined?"":inputFmt(last);
@@ -427,7 +435,7 @@ function noPuzzle(key){$("pnum").textContent="";$("play").hidden=true;$("qguess"
   $("board").firstChild.textContent="No puzzle is scheduled for "+key+". Come back tomorrow."}
 async function boot(){const n=new Date();
   viewDate=PREVIEW?new Date(+PREVIEW.slice(0,4),PREVIEW.slice(5,7)-1,+PREVIEW.slice(8)):new Date(n.getFullYear(),n.getMonth(),n.getDate());
-  const key=todayKey(viewDate);let data=null;
+  const key=todayKey(viewDate);let data=null;debugMenu(key);
   $("pdate").textContent=viewDate.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"});
   try{const r=await fetch("puzzles/"+key+".json",{cache:"no-cache"});if(r.ok)data=await r.json()}catch(e){}
   if(!data||!Array.isArray(data.line)||data.line.length<MAX){noPuzzle(key);return}
