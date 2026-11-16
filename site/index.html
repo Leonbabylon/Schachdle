@@ -258,7 +258,7 @@ const $=id=>document.getElementById(id);
 
 function todayKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 const REAL_DAY=todayKey();
-let viewDate, puzzleNo, P, SRC, KEY, state, grid, stm, moveNo, ENGINE="Stockfish 19 at depth 24";
+let viewDate, puzzleNo, P, SRC, KEY, state, grid, stm, moveNo;
 let cur=0, sel=null, drag=null;
 
 function load(){let s;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}s=s||{};return {guesses:(s.guesses||[]).slice(0,MAX),move:s.move&&typeof s.move==="object"?s.move:null}}
@@ -386,12 +386,12 @@ function finish(){$("play").hidden=true;drawBar();drawBoard();drawMoveNote();
   $("rscore").textContent=scoreStr();$("rstar").hidden=!starred();
   const F=pos(),c=ply();$("rtrue").textContent=fmt2(F.eval);
   const a=Math.abs(F.eval);$("rside").textContent=a<0.5?"roughly equal":(F.eval>0?"White":"Black")+(a<1.5?" is slightly better":a<3?" is clearly better":" is winning");
-  $("rbestline").innerHTML=(state.move?`${esc(ENGINE)}. Top move in this position: <b>${F.moves[F.best]}</b>${starred()?' <span class="star">★ you found it</span>':" (white arrow)"}.`
-    :won()?`${esc(ENGINE)}. Bonus round: play its top move on the board for the <span class="star">★</span>.`
-    :`${esc(ENGINE)}. Top move in this position: <b>${F.moves[F.best]}</b> (white arrow).`)
-    +(SRC&&SRC.white&&SRC.black?`<br>Starting position: ${esc(SRC.white)} vs ${esc(SRC.black)}${SRC.event?", "+esc(SRC.event):""}${SRC.round?", round "+esc(SRC.round):""}.`
-      +(SRC.played?` In the game, ${esc(SRC[P[0].fen.split(" ")[1]==="w"?"white":"black"])} played <b>${numbered(P[0],esc(SRC.played))}</b>.`:""):"")
-    +(c>0?"<br>How the eval moved: "+P.slice(0,c+1).map((q,i)=>`<b>${fmt2(q.eval)}</b>`+(i<c?" "+numbered(q,q.moves[q.best])+" ":"")).join(""):"");
+  // Top move, then how the eval changed along the line, then what was played in the real game.
+  $("rbestline").innerHTML=(state.move?`Top move in this position: <b>${F.moves[F.best]}</b>${starred()?' <span class="star">★ you found it</span>':" (white arrow)"}.`
+    :won()?`Bonus round: play Stockfish's top move on the board for the <span class="star">★</span>.`
+    :`Top move in this position: <b>${F.moves[F.best]}</b> (white arrow).`)
+    +(c>0?"<br>How the eval changed: "+P.slice(0,c+1).map((q,i)=>`<b>${fmt2(q.eval)}</b>`+(i<c?" "+numbered(q,q.moves[q.best])+" ":"")).join(""):"")
+    +(SRC&&SRC.played&&SRC.white&&SRC.black?`<br>In the game, ${esc(SRC[P[0].fen.split(" ")[1]==="w"?"white":"black"])} played <b>${numbered(P[0],esc(SRC.played))}</b>.`:"");
   $("sharetext").textContent=shareText()}
 
 function submit(raw){if(done())return;const err=$("err");err.textContent="";
@@ -445,7 +445,7 @@ async function boot(){const n=new Date();
   try{const r=await fetch("puzzles/"+key+".json",{cache:"no-cache"});if(r.ok)data=await r.json()}catch(e){}
   if(!data||!Array.isArray(data.line)||data.line.length<MAX){noPuzzle(key);return}
   P=data.line;SRC=data.source||null;puzzleNo=data.number;
-  if(data.engine){const d=data.depth?" · depth "+data.depth:"";ENGINE=data.engine+(data.depth?" at depth "+data.depth:"");$("engname").textContent=data.engine;$("engfoot").textContent=data.engine+d}
+  if(data.engine){const d=data.depth?" · depth "+data.depth:"";$("engname").textContent=data.engine;$("engfoot").textContent=data.engine+d}
   if(SRC&&SRC.white&&SRC.black){const g=$("gtitle");g.textContent=[SRC.white+" vs "+SRC.black,SRC.round&&"Round "+SRC.round,SRC.game&&"Game "+SRC.game,SRC.event].filter(Boolean).join(" - ");g.hidden=false}
   KEY="schachdle-"+key;state=load();sync();setup()}
 boot();
