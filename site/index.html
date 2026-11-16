@@ -54,6 +54,12 @@ h1 span{color:var(--accent)}
 
 .prompt{margin:0;font-size:13px;color:var(--ink)}
 .prompt strong{color:var(--bright);font-weight:600}
+.prompt summary{cursor:pointer;list-style:none;width:fit-content}
+.prompt summary::-webkit-details-marker{display:none}
+.prompt summary:focus-visible{outline:1px dashed var(--accent);outline-offset:2px}
+.prompt .tog{color:var(--muted)}.prompt .tog::after{content:"[how to play]"}.prompt[open] .tog::after{content:"[hide]"}
+.prompt summary:hover .tog{color:var(--bright)}
+.prompt p{margin:6px 0 0}
 
 /* Eval bar doubles as the guess slider */
 .stage{display:grid;grid-template-columns:36px 1fr;gap:8px}
@@ -171,7 +177,7 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
     <div class="debug" id="debug" hidden><span class="tag">debug</span><span id="dbgdate"></span><button type="button" class="btn sm" id="dbgprev">◀ Prev day</button><button type="button" class="btn sm" id="dbgtoday">Today</button><button type="button" class="btn sm" id="dbgnext">Next day ▶</button><button type="button" class="btn sm" id="dbgreset">Reset puzzle</button></div>
   </header>
 
-  <p class="prompt"><span class="sys">-!- Topic for #schachdle:</span> What does <strong>Stockfish</strong> think of this position? Guess the evaluation in pawns from White's side. You have <strong>5 tries</strong>. After each miss Stockfish plays its top move, and your next guess is for the new position. Get the eval right and a bonus round opens: find its top move on the board for a <span class="star">★</span>.</p>
+  <details class="prompt"><summary><span class="sys">-!- Topic for #schachdle:</span> <span class="tog"></span></summary><p>What does <strong>Stockfish</strong> think of this position? Guess the evaluation in pawns from White's side. You have <strong>5 tries</strong>. After each miss Stockfish plays its top move, and your next guess is for the new position. Get the eval right and a bonus round opens: find its top move on the board for a <span class="star">★</span>.</p></details>
 
   <div class="boardcol">
   <div class="stage">
