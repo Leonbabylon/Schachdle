@@ -421,7 +421,7 @@ function tick(){const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.get
   $("countdown").textContent=`${h}:${mi}:${se}`;$("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0")}
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
-// Admin preview: index.html?date=YYYY-MM-DD shows that date's puzzle (only dates whose file has been published exist online).
+// Admin preview: index.html?date=YYYY-MM-DD shows that date's puzzle (the live site publishes every built puzzle).
 const PREVIEW=(()=>{const q=new URLSearchParams(location.search).get("date");return /^\d{4}-\d\d-\d\d$/.test(q||"")?q:null})();
 // Debug menu: add ?debug to the URL. Steps to the previous or next day (keeping ?debug) and resets the shown puzzle.
 const DEBUG=new URLSearchParams(location.search).has("debug");

@@ -86,7 +86,8 @@ python tools/publish.py --all              # public/ with every puzzle, for prev
 python -m http.server -d public 8000       # then open http://localhost:8000/?date=2026-11-18
 ```
 
-`?date=YYYY-MM-DD` shows that date's puzzle. Online it only works for dates already published.
+`?date=YYYY-MM-DD` shows that date's puzzle. The live site publishes every built puzzle, so this works
+for future dates online too (see below).
 
 `?debug` shows a debug menu above the board: step to the previous or next day, jump back to today,
 or reset the shown puzzle (clears its saved guesses in this browser). It works on the live site too,
@@ -112,8 +113,13 @@ The workflows publish to GitHub Pages. One-time setup:
 
 ### Keeping future answers private
 
-The live site only ever holds puzzles up to tomorrow. The repository, however, holds all of them,
-so anyone who can read the repository can read next week's evals.
+The live site currently publishes every built puzzle (`publish.py --all` in the **Publish site**
+workflow), so the debug menu can step through future days online. That also means anyone who
+guesses a puzzle file's URL can read next week's evals. To hold future puzzles back, remove `--all`
+from `.github/workflows/deploy.yml`: the site then only holds puzzles up to tomorrow (UTC).
+
+The repository holds all of them either way, so anyone who can read the repository can read next
+week's evals.
 
 - A **public** repository is free on GitHub Pages but exposes the queue.
 - A **private** repository hides it. GitHub Pages on a private repository needs a paid GitHub plan;
