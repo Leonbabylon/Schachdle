@@ -354,7 +354,8 @@ function slide(from,to){const b=$("board"),a=b.querySelector(`[data-sq="${from}"
   if(!a||!pc||!pc.animate)return;const ra=a.getBoundingClientRect(),rz=z.getBoundingClientRect();
   z.style.zIndex=4;z.style.overflow="visible";
   pc.animate([{transform:`translate(calc(-50% + ${ra.left-rz.left}px),calc(-50% + ${ra.top-rz.top}px))`},{transform:"translate(-50%,-50%)"}],{duration:260,easing:"cubic-bezier(.3,.7,.3,1)"})}
-function animateMove(uci){if(calm())return;const from=uci.slice(0,2),to=uci.slice(2,4),p=at(to);slide(from,to);
+// Runs even with Reduce Motion on: the short slide shows which piece Stockfish moved, and it's a small, direct movement.
+function animateMove(uci){const from=uci.slice(0,2),to=uci.slice(2,4),p=at(to);slide(from,to);
   if(p&&p.toLowerCase()==="k"&&Math.abs(from.charCodeAt(0)-to.charCodeAt(0))===2){const r=to[1];if(to[0]==="g")slide("h"+r,"f"+r);else slide("a"+r,"d"+r)}}
 // Correct guess: a diagonal wave turns the light squares blue and the dark squares green, then lets them settle back.
 function celebrate(){if(calm())return;const cs=getComputedStyle(document.documentElement),blue=cs.getPropertyValue("--accent").trim(),green=cs.getPropertyValue("--good").trim();
