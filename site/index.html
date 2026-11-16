@@ -159,7 +159,6 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
 .btn.sm::before,.btn.sm::after{content:none}
 @supports (container-type:inline-size){.board{container-type:inline-size}.co{font-size:clamp(9px,1.9cqw,13px)}}
 .boardmsg{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--surface);color:var(--ink);font-size:14px;line-height:1.5}
-@media (prefers-reduced-motion:reduce){.g.pop,.g.active .v::after{animation:none}.evalbar .white,.evalbar .handle{transition:none!important}}
 </style>
 
 </head>
@@ -348,17 +347,16 @@ function play(uci){if(!won()||state.move||!pos().moves[uci])return;state.move={p
   b.addEventListener("pointerup",end);b.addEventListener("pointercancel",e=>{if(drag&&drag.ghost)drag.ghost.remove();drag=null;drawBoard()})})();
 
 /* ---------- animations ---------- */
-const calm=()=>{try{return matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){return false}};
+// All animations play even when the device asks for reduced motion (a deliberate choice for now).
 // Slide the piece Stockfish just moved from its old square to its new one (plus the rook when castling).
 function slide(from,to){const b=$("board"),a=b.querySelector(`[data-sq="${from}"]`),z=b.querySelector(`[data-sq="${to}"]`),pc=z&&z.querySelector(".pc");
   if(!a||!pc||!pc.animate)return;const ra=a.getBoundingClientRect(),rz=z.getBoundingClientRect();
   z.style.zIndex=4;z.style.overflow="visible";
   pc.animate([{transform:`translate(calc(-50% + ${ra.left-rz.left}px),calc(-50% + ${ra.top-rz.top}px))`},{transform:"translate(-50%,-50%)"}],{duration:260,easing:"cubic-bezier(.3,.7,.3,1)"})}
-// Runs even with Reduce Motion on: the short slide shows which piece Stockfish moved, and it's a small, direct movement.
 function animateMove(uci){const from=uci.slice(0,2),to=uci.slice(2,4),p=at(to);slide(from,to);
   if(p&&p.toLowerCase()==="k"&&Math.abs(from.charCodeAt(0)-to.charCodeAt(0))===2){const r=to[1];if(to[0]==="g")slide("h"+r,"f"+r);else slide("a"+r,"d"+r)}}
 // Correct guess: a diagonal wave turns the light squares blue and the dark squares green, then lets them settle back.
-function celebrate(){if(calm())return;const cs=getComputedStyle(document.documentElement),blue=cs.getPropertyValue("--accent").trim(),green=cs.getPropertyValue("--good").trim();
+function celebrate(){const cs=getComputedStyle(document.documentElement),blue=cs.getPropertyValue("--accent").trim(),green=cs.getPropertyValue("--good").trim();
   $("board").querySelectorAll(".sq").forEach((sq,i)=>{if(!sq.animate)return;const r=Math.floor(i/8),f=i%8,light=sq.classList.contains("l"),base=getComputedStyle(sq).backgroundColor;
     const one=light?blue:green,two=light?green:blue;
     sq.animate([{backgroundColor:base},{backgroundColor:one,offset:.2},{backgroundColor:one,offset:.45},{backgroundColor:two,offset:.65},{backgroundColor:two,offset:.8},{backgroundColor:base}],
