@@ -43,8 +43,9 @@ round opens: find the engine's top move for a ★.
    ```
 
    `id` must be unique. `date` is optional: leave it out and the position gets the first free day
-   after the last scheduled one. `white`, `black`, `event`, `round` and `played` are optional and
-   only feed the "Starting position" line shown after the game.
+   after the last scheduled one. `white`, `black`, `event`, `round`, `game` and `played` are optional. The players, round, game and
+   event make up the game title shown under the board, and also feed the "Starting position" line
+   shown after the game.
 
 2. Commit and push (or open a pull request to have the positions checked first).
    The **Build puzzles** workflow analyses each new position, writes `puzzles/<date>.json`, fills in
@@ -78,7 +79,7 @@ already been published: players may have it in progress.
 
 ```
 pip install -r tools/requirements.txt
-export STOCKFISH=/path/to/stockfish        # Stockfish 17.1; on Linux, tools/get_stockfish.sh fetches it
+export STOCKFISH=/path/to/stockfish        # Stockfish 19; on Linux, tools/get_stockfish.sh fetches it
 python tools/build.py --check              # analyse and validate, write nothing
 python tools/build.py                      # write the puzzle files
 python tools/publish.py --all              # public/ with every puzzle, for previewing

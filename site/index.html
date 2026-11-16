@@ -38,7 +38,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14p
   h1{font-size:56px}
   .boardcol{align-self:start;position:sticky;top:20px}
   .stage{grid-template-columns:44px 1fr;gap:12px}
-  .turn,.movenote{padding-left:56px}
+  .turn,.movenote,.gametitle{padding-left:56px}
 }
 
 /* status bars and banner */
@@ -93,6 +93,7 @@ h1 span{color:var(--accent)}
 .turn .left{display:flex;flex-direction:column;line-height:1.35;min-width:0}
 .turn .left small{font-size:12px;color:var(--act)}
 .turn .left small::before{content:"* "}
+.gametitle{margin:8px 0 4px;font-size:12px;color:var(--muted);padding-left:44px;overflow-wrap:anywhere}
 .movenote{margin:0;font-size:13px;color:var(--ink);padding-left:44px}
 .movenote::before{content:"-!- ";color:var(--accent)}
 .movenote b{color:var(--bright)}
@@ -167,7 +168,7 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
   <header>
     <div class="bar"><span>[#schachdle]</span><span>Puzzle <b id="pnum">#1</b></span><span class="r" id="pdate"></span></div>
     <h1>Schach<span>dle</span></h1>
-    <p class="motd">*** Connected to the Schachdle evaluation server. Guests welcome. Engine on duty: Stockfish 17.1.</p>
+    <p class="motd">*** Connected to the Schachdle evaluation server. Guests welcome. Engine on duty: <span id="engname">Stockfish 19</span>.</p>
   </header>
 
   <p class="prompt"><span class="sys">-!- Topic for #schachdle:</span> What does <strong>Stockfish</strong> think of this position? Guess the evaluation in pawns from White's side. You have <strong>5 tries</strong>. After each miss Stockfish plays its top move, and your next guess is for the new position. Get the eval right and a bonus round opens: find its top move on the board for a <span class="star">★</span>.</p>
@@ -180,6 +181,7 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
     </div>
     <div class="board" id="board" role="application" aria-label="Chess board"><noscript><div class="boardmsg" style="position:static;min-height:280px">This viewer has JavaScript turned off, so the position can't be drawn. Open the file in Chrome or Safari instead.</div></noscript></div>
   </div>
+  <p class="gametitle" id="gtitle" hidden></p>
   <div class="turn"><span class="left"><span id="turn"></span><small id="mv"></small></span><button type="button" class="quickguess" id="qguess">Guess <b id="qval">0.0</b></button></div>
   <p class="movenote" id="movenote"></p>
   </div>
@@ -220,12 +222,12 @@ pre.share{margin:0;padding:10px 12px;background:var(--surface);border:1px solid 
 
   </div>
 
-  <footer class="bar"><span>[<span id="clock">--:--</span>]</span><span>[guest]</span><span>[#schachdle]</span><span class="r">[5 tries · Stockfish 17.1 · depth 24]</span></footer>
+  <footer class="bar"><span>[<span id="clock">--:--</span>]</span><span>[guest]</span><span>[#schachdle]</span><span class="r">[5 tries · <span id="engfoot">Stockfish 19 · depth 24</span>]</span></footer>
 </div>
 
 <script>
 window.onerror=function(m){var b=document.getElementById("board");if(b&&!b.querySelector(".sq")){b.innerHTML='<div class="boardmsg" style="position:static;min-height:280px"></div>';b.firstChild.textContent="The board could not load: "+m}};
-// One puzzle per calendar date, loaded from puzzles/YYYY-MM-DD.json (built by tools/build.py). Stockfish 17.1, depth 24.
+// One puzzle per calendar date, loaded from puzzles/YYYY-MM-DD.json (built by tools/build.py). Each file names the engine and depth that analysed it.
 // Eval in pawns from White's point of view. A puzzle's "line" is six positions: the starting position, then the
 // position after Stockfish's top move, five times over. Guess n is graded against position n; after every guess
 // that doesn't end the game, the top move is played on the board.
@@ -250,7 +252,7 @@ const $=id=>document.getElementById(id);
 
 function todayKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 const REAL_DAY=todayKey();
-let viewDate, puzzleNo, P, SRC, KEY, state, grid, stm, moveNo;
+let viewDate, puzzleNo, P, SRC, KEY, state, grid, stm, moveNo, ENGINE="Stockfish 19 at depth 24";
 let cur=0, sel=null, drag=null;
 
 function load(){let s;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}s=s||{};return {guesses:(s.guesses||[]).slice(0,MAX),move:s.move&&typeof s.move==="object"?s.move:null}}
@@ -378,9 +380,9 @@ function finish(){$("play").hidden=true;drawBar();drawBoard();drawMoveNote();
   $("rscore").textContent=scoreStr();$("rstar").hidden=!starred();
   const F=pos(),c=ply();$("rtrue").textContent=fmt2(F.eval);
   const a=Math.abs(F.eval);$("rside").textContent=a<0.5?"roughly equal":(F.eval>0?"White":"Black")+(a<1.5?" is slightly better":a<3?" is clearly better":" is winning");
-  $("rbestline").innerHTML=(state.move?`Stockfish 17.1 at depth 24. Top move in this position: <b>${F.moves[F.best]}</b>${starred()?' <span class="star">★ you found it</span>':" (white arrow)"}.`
-    :won()?`Stockfish 17.1 at depth 24. Bonus round: play its top move on the board for the <span class="star">★</span>.`
-    :`Stockfish 17.1 at depth 24. Top move in this position: <b>${F.moves[F.best]}</b> (white arrow).`)
+  $("rbestline").innerHTML=(state.move?`${esc(ENGINE)}. Top move in this position: <b>${F.moves[F.best]}</b>${starred()?' <span class="star">★ you found it</span>':" (white arrow)"}.`
+    :won()?`${esc(ENGINE)}. Bonus round: play its top move on the board for the <span class="star">★</span>.`
+    :`${esc(ENGINE)}. Top move in this position: <b>${F.moves[F.best]}</b> (white arrow).`)
     +(SRC&&SRC.white&&SRC.black?`<br>Starting position: ${esc(SRC.white)} vs ${esc(SRC.black)}${SRC.event?", "+esc(SRC.event):""}${SRC.round?", round "+esc(SRC.round):""}.`
       +(SRC.played?` In the game, ${esc(SRC[P[0].fen.split(" ")[1]==="w"?"white":"black"])} played <b>${numbered(P[0],esc(SRC.played))}</b>.`:""):"")
     +(c>0?"<br>How the eval moved: "+P.slice(0,c+1).map((q,i)=>`<b>${fmt2(q.eval)}</b>`+(i<c?" "+numbered(q,q.moves[q.best])+" ":"")).join(""):"");
@@ -429,7 +431,10 @@ async function boot(){const n=new Date();
   $("pdate").textContent=viewDate.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"});
   try{const r=await fetch("puzzles/"+key+".json",{cache:"no-cache"});if(r.ok)data=await r.json()}catch(e){}
   if(!data||!Array.isArray(data.line)||data.line.length<MAX){noPuzzle(key);return}
-  P=data.line;SRC=data.source||null;puzzleNo=data.number;KEY="schachdle-"+key;state=load();sync();setup()}
+  P=data.line;SRC=data.source||null;puzzleNo=data.number;
+  if(data.engine){const d=data.depth?" · depth "+data.depth:"";ENGINE=data.engine+(data.depth?" at depth "+data.depth:"");$("engname").textContent=data.engine;$("engfoot").textContent=data.engine+d}
+  if(SRC&&SRC.white&&SRC.black){const g=$("gtitle");g.textContent=[SRC.white+" vs "+SRC.black,SRC.round&&"Round "+SRC.round,SRC.game&&"Game "+SRC.game,SRC.event].filter(Boolean).join(" - ");g.hidden=false}
+  KEY="schachdle-"+key;state=load();sync();setup()}
 boot();
 tick();setInterval(tick,1000);
 </script>

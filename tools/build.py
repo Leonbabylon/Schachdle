@@ -143,7 +143,7 @@ def main():
                 if number < 1:
                     raise Reject(f"{date} is before the launch date {CFG['launch_date']}")
                 line = analyse_line(engine, board)
-                source = {k: e[k] for k in ("white", "black", "event", "round") if e.get(k)}
+                source = {k: e[k] for k in ("white", "black", "event", "round", "game") if e.get(k)}
                 if played:
                     source["played"] = played
                 puzzle = {"id": e["id"], "date": date, "number": number, "engine": CFG["engine_name"], "depth": CFG["depth"], "source": source, "line": line}
