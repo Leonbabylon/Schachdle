@@ -79,6 +79,16 @@
       "event": "Total Chess World Championship Tour Pilot 2026",
       "round": 6,
       "played": "Ne7"
+    },
+    {
+      "id": "Ruparati-LellyStr-15b",
+      "date": "2026-11-24",
+      "fen": "r3kbnr/pp3ppp/4p3/2p1P3/2p5/2N3QP/P1qB1PP1/2R1K2R b Kkq - 1 15",
+      "white": "Ruparati",
+      "black": "LellyStr",
+      "event": "Chess.com Winter Seasonal Rapid 2026",
+      "round": 1,
+      "played": "Qb2"
     }
   ]
 }
