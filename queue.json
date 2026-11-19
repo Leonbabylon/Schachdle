@@ -69,6 +69,16 @@
       "event": "Total Chess World Championship Tour Pilot 2026",
       "round": 3,
       "played": "Bf5"
+    },
+    {
+      "id": "mishra-praggnanandhaa-29b",
+      "date": "2026-11-23",
+      "fen": "2rr2k1/1q3pp1/7p/p1bpQn2/Pp6/1P2P2P/4NPPB/2RR2K1 b - - 1 29",
+      "white": "Mishra",
+      "black": "Praggnanandhaa",
+      "event": "Total Chess World Championship Tour Pilot 2026",
+      "round": 6,
+      "played": "Ne7"
     }
   ]
 }
