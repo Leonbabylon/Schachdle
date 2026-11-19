@@ -89,6 +89,16 @@
       "event": "Chess.com Winter Seasonal Rapid 2026",
       "round": 1,
       "played": "Qb2"
+    },
+    {
+      "id": "Firouzja-Giri-33w",
+      "date": "2026-11-24",
+      "fen": "7k/8/5q2/2p2rpp/N3Qb2/1P1P1R1P/2P2P2/5K2 w - - 1 33",
+      "white": "Firouzja",
+      "black": "Giri",
+      "event": "Total Chess World Championship Tour Pilot 2026",
+      "round": "Grand Final",
+      "played": "Qb2"
     }
   ]
 }
